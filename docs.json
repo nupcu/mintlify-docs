@@ -1,7 +1,11 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "name": "Zynx Wallet API",
+  "name": "ZynxWallet Docs",
   "theme": "mint",
+  "logo": {
+    "light": "/logo/logo.png",
+    "dark": "/logo/logo.png"
+  },
   "colors": {
     "primary": "#00C853",
     "light": "#69F0AE",
