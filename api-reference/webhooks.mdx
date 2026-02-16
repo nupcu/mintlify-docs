@@ -1,0 +1,68 @@
+---
+title: Webhooks
+icon: bell
+---
+
+## Configurar Webhook
+
+Configure webhooks para receber notificações em tempo real sobre eventos importantes, como a conclusão de um pagamento ou a criação de um saque.
+
+<RequestExample>
+  ```bash POST /webhooks
+  curl -X POST 'https://api.zynxwallet.com.br/api/v1/webhooks' \
+    -H 'X-API-Key: zynx_sua_chave_aqui' \
+    -H 'Content-Type: application/json' \
+    -d '{
+      "url": "https://seusite.com/webhook",
+      "events": ["payment.completed", "withdrawal.created"]
+    }'
+  ```
+</RequestExample>
+
+### Parâmetros do Corpo
+
+<ResponseField name="url" type="string" required>
+  URL para onde as notificações do webhook serão enviadas.
+</ResponseField>
+<ResponseField name="events" type="array" required>
+  Lista de eventos para os quais o webhook deve ser acionado (ex: `payment.completed`, `withdrawal.created`).
+</ResponseField>
+
+### Resposta
+
+<ResponseExample>
+  ```json 200
+  {
+    "success": true,
+    "message": "Webhook configurado com sucesso"
+  }
+  ```
+</ResponseExample>
+
+---
+
+## Estrutura do Payload do Webhook
+
+Os webhooks enviarão um payload JSON para a URL configurada. A estrutura básica do payload é a seguinte:
+
+```json
+{
+  "event": "payment.completed",
+  "timestamp": "2024-02-16T15:30:00Z",
+  "data": {
+    "id": "pay_abc123",
+    "status": "COMPLETED",
+    "value": 15300,
+    "netValue": 15000,
+    "updatedAt": "2024-02-16T15:05:00Z"
+  }
+}
+```
+
+### Eventos Suportados
+
+-   `payment.completed`: Um pagamento PIX foi concluído com sucesso.
+-   `payment.failed`: Um pagamento PIX falhou.
+-   `withdrawal.created`: Um saque foi solicitado.
+-   `withdrawal.completed`: Um saque foi concluído com sucesso.
+-   `withdrawal.failed`: Um saque falhou.

@@ -1,0 +1,53 @@
+---
+title: Início Rápido
+icon: bolt
+---
+
+Este guia rápido irá ajudá-lo a começar a usar a API Zynx Wallet em poucos passos.
+
+## 1. Obtenha sua Chave de API
+
+Primeiro, você precisará de uma `X-API-Key`. Acesse o painel administrativo da Zynx Wallet para gerar sua chave. Lembre-se que o prefixo da chave é `zynx_`.
+
+## 2. Base URL
+
+Todas as requisições devem ser feitas para a seguinte URL base:
+
+```text
+https://api.zynxwallet.com.br/api/v1
+```
+
+## 3. Autenticação
+
+Inclua sua `X-API-Key` no cabeçalho de todas as requisições:
+
+```
+Header: X-API-Key
+Value: zynx_sua_chave_aqui
+```
+
+## 4. Exemplo de Requisição (Criar Pagamento PIX)
+
+Para criar um pagamento PIX, envie uma requisição `POST` para o endpoint `/payment/create`.
+
+```bash
+curl -X POST 'https://api.zynxwallet.com.br/api/v1/payment/create' \
+  -H 'X-API-Key: zynx_sua_chave_aqui' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "value": 150.00,
+    "description": "Venda de Produto #123",
+    "coverFee": true
+  }'
+```
+
+## 5. Fluxo de Integração Recomendado
+
+Para uma experiência perfeita, siga este fluxo:
+
+1.  **Criação:** Chame `POST /payment/create` e exiba o QR Code para o cliente.
+2.  **Aguarde:** O cliente realiza o pagamento via app do banco.
+3.  **Notificação:** Seu servidor recebe um POST no Webhook configurado.
+4.  **Confirmação:** Valide o payload do webhook e libere o produto/serviço.
+
+Para mais detalhes sobre os endpoints e exemplos completos, consulte a [Referência da API](/api-reference/pagamentos).

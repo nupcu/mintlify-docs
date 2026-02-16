@@ -1,0 +1,36 @@
+---
+title: Gerenciamento de Conta
+icon: wallet
+---
+
+## Consultar Saldo e Estatísticas
+
+Retorna o saldo disponível, valores pendentes e estatísticas de uso da sua conta Zynx.
+
+<RequestExample>
+  ```bash GET /user/balance
+  curl 'https://api.zynxwallet.com.br/api/v1/user/balance' \
+    -H 'X-API-Key: zynx_sua_chave_aqui'
+  ```
+</RequestExample>
+
+### Resposta
+
+<ResponseExample>
+  ```json 200
+  {
+    "success": true,
+    "data": {
+      "balance": {
+        "total": 1250050,
+        "pendingPayments": 45000,
+        "totalWithPending": 1295050
+      },
+      "statistics": {
+        "totalReceived": 5000000,
+        "completedPayments": 342
+      }
+    }
+  }
+  ```
+</ResponseExample>

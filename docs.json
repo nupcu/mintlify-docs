@@ -1,0 +1,59 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Zynx Wallet API Documentation",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#00C853",
+    "light": "#69F0AE",
+    "dark": "#00796B"
+  },
+  "api": {
+    "baseUrl": "https://api.zynxwallet.com.br/api/v1",
+    "auth": "key"
+  },
+  "navigation": {
+    "groups": [
+      {
+        "group": "Introdução",
+        "pages": [
+          "index",
+          "quickstart",
+          "about"
+        ]
+      },
+      {
+        "group": "Referência da API",
+        "pages": [
+          "api-reference/pagamentos",
+          "api-reference/saques-transferencias",
+          "api-reference/gerenciamento-conta",
+          "api-reference/webhooks"
+        ]
+      }
+    ]
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Página Principal",
+        "href": "https://zynxwallet.com.br"
+      },
+      {
+        "label": "Discord",
+        "href": "https://discord.gg/zynxwallet"
+      }
+    ]
+  },
+  "footer": {
+    "socials": {
+      "x": "https://twitter.com/zynxwallet",
+      "github": "https://github.com/zynxwallet",
+      "linkedin": "https://linkedin.com/company/zynxwallet"
+    }
+  }
+}
