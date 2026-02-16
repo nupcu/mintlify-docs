@@ -28,7 +28,8 @@
         "group": "Começando",
         "pages": [
           "api-reference/autenticacao",
-          "api-reference/rate-limiting"
+          "api-reference/rate-limiting",
+          "api-reference/erros"
         ]
       },
       {

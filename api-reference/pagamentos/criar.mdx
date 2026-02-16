@@ -4,62 +4,59 @@ api: "POST /payment/create"
 description: "Cria uma nova transação PIX e gera o QR Code e o código Copia e Cola."
 ---
 
+Este é o endpoint principal para receber pagamentos. Ele gera um QR Code dinâmico que pode ser lido por qualquer aplicativo bancário brasileiro.
+
 ### Parâmetros do Corpo (JSON)
 
 <ParamField body="value" type="number" required>
-  Valor em reais (ex: 100.50). Mínimo R$ 1,00.
+  Valor em reais (ex: 100.50). O valor mínimo permitido é **R$ 1,00**.
 </ParamField>
 
 <ParamField body="description" type="string">
-  Descrição que aparecerá no extrato.
+  Texto que aparecerá no extrato do cliente e no seu painel Zynx. Máximo de 255 caracteres.
 </ParamField>
 
 <ParamField body="coverFee" type="boolean" default="false">
-  Se `true`, a taxa é adicionada ao valor total. Se `false`, a taxa é descontada do valor recebido.
+  Define quem paga a taxa de R$ 0.50:
+  - `true`: A taxa é somada ao valor total (o cliente paga a taxa).
+  - `false`: A taxa é descontada do valor recebido (você paga a taxa).
 </ParamField>
 
 <ParamField body="splitUser" type="string">
-  Email de outro usuário Zynx para divisão de valores.
+  E-mail de outro usuário Zynx cadastrado para receber uma parte do valor automaticamente.
 </ParamField>
 
 <ParamField body="splitTax" type="number">
-  Porcentagem (0.01 a 100) para o `splitUser`.
+  Porcentagem (0.01 a 100) do valor que será enviado para o `splitUser`.
 </ParamField>
 
-### Resposta de Sucesso (201 Created)
+### Entendendo a Resposta
+
+A Zynx retorna valores monetários em **centavos** para garantir precisão total.
 
 <ResponseField name="success" type="boolean">
-  Indica se a operação foi bem-sucedida.
+  Indica se a transação foi criada com sucesso no nosso gateway.
 </ResponseField>
 
 <ResponseField name="data" type="object">
   <Expandable title="Propriedades do Objeto">
     <ResponseField name="id" type="string">
-      ID único da transação.
-    </ResponseField>
-    <ResponseField name="transactionId" type="string">
-      ID interno da transação.
+      ID único da transação na Zynx (ex: `pay_abc123`). Use este ID para consultas futuras.
     </ResponseField>
     <ResponseField name="valueInReais" type="number">
-      Valor total em reais.
+      O valor exato que o cliente deve pagar no banco.
     </ResponseField>
     <ResponseField name="netValue" type="number">
-      Valor líquido em centavos.
+      O valor líquido que entrará no seu saldo (em centavos).
     </ResponseField>
     <ResponseField name="fee" type="number">
-      Taxa aplicada em centavos.
-    </ResponseField>
-    <ResponseField name="status" type="string">
-      Status atual (`PENDING`).
+      O valor da taxa aplicada (em centavos).
     </ResponseField>
     <ResponseField name="qrcodeUrl" type="string">
-      URL ou Base64 da imagem do QR Code.
+      String Base64 da imagem do QR Code. Pode ser usada diretamente em uma tag `<img src="..." />`.
     </ResponseField>
     <ResponseField name="copyPaste" type="string">
-      Código PIX Copia e Cola.
-    </ResponseField>
-    <ResponseField name="createdAt" type="string">
-      Data de criação da transação.
+      Código PIX Copia e Cola para usuários que estão no celular.
     </ResponseField>
   </Expandable>
 </ResponseField>
@@ -80,7 +77,7 @@ curl -X POST 'https://api.zynxwallet.com.br/api/v1/payment/create' \
 </RequestExample>
 
 <ResponseExample>
-```json Resposta
+```json Resposta de Sucesso
 {
   "success": true,
   "data": {
@@ -97,3 +94,7 @@ curl -X POST 'https://api.zynxwallet.com.br/api/v1/payment/create' \
 }
 ```
 </ResponseExample>
+
+<Tip>
+  **Dica de Implementação:** Sempre salve o `id` retornado em seu banco de dados associado ao pedido do seu cliente. Isso facilitará a conciliação quando o webhook de confirmação chegar.
+</Tip>

@@ -1,58 +1,24 @@
 ---
 title: "Webhooks"
 api: "POST /webhooks"
-description: "Receba notificações em tempo real sobre eventos na sua conta."
+description: "Receba notificações automáticas em tempo real sobre eventos na sua conta."
 ---
 
-<Note>
-  Este é um endpoint de **Webhook**. Sua aplicação deve estar preparada para receber requisições POST da Zynx Wallet.
-</Note>
+Webhooks são a forma mais eficiente de manter seu sistema sincronizado com a Zynx Wallet. Em vez de ficar consultando a API repetidamente, nós avisamos você assim que algo acontece.
 
-## Configurar Webhook
+## Como Funciona
 
-Configure webhooks para receber notificações automáticas em tempo real sobre eventos importantes, como a confirmação de um pagamento ou o processamento de um saque.
+1. Você configura uma URL de destino no seu painel ou via API.
+2. Quando um evento ocorre (ex: pagamento confirmado), a Zynx faz um `POST` para sua URL.
+3. Seu servidor deve responder com um status HTTP `200 OK` para confirmar o recebimento.
 
-### Requisição
-
-<ParamField body="url" type="string" required>
-  URL do seu servidor que receberá as notificações (POST).
-</ParamField>
-
-<ParamField body="events" type="array" required>
-  Lista de eventos para monitorar (ex: `["payment.completed", "withdrawal.created"]`).
-</ParamField>
-
-<RequestExample>
-
-```bash cURL
-curl --request POST \
-  --url https://api.zynxwallet.com.br/api/v1/webhooks \
-  --header 'Content-Type: application/json' \
-  --header 'X-API-Key: zynx_sua_chave' \
-  --data '{
-  "url": "https://seusite.com/webhook",
-  "events": ["payment.completed", "withdrawal.created"]
-}'
-```
-
-</RequestExample>
-
-<ResponseExample>
-
-```json Exemplo de Resposta
-{
-  "success": true,
-  "message": "Webhook configurado com sucesso"
-}
-```
-
-</ResponseExample>
-
----
+<Warning>
+  **Importante:** Se o seu servidor não responder com `200 OK`, a Zynx tentará reenviar a notificação em intervalos crescentes por até 24 horas.
+</Warning>
 
 ## Estrutura do Payload
 
-Quando um evento ocorre, a Zynx Wallet enviará um `POST` para sua URL com o seguinte formato:
+O corpo da requisição enviada pela Zynx segue este formato:
 
 <ResponseField name="event" type="string">
   O tipo do evento ocorrido.
@@ -61,18 +27,21 @@ Quando um evento ocorre, a Zynx Wallet enviará um `POST` para sua URL com o seg
 <ResponseField name="data" type="object">
   <Expandable title="Detalhes do Evento">
     <ResponseField name="id" type="string">
-      ID da transação relacionada.
+      ID da transação relacionada (ex: `pay_abc123`).
     </ResponseField>
     <ResponseField name="status" type="string">
-      Novo status da transação (`COMPLETED`, `FAILED`, etc).
+      Novo status da transação (`COMPLETED`, `FAILED`, `CANCELLED`).
     </ResponseField>
     <ResponseField name="value" type="number">
-      Valor da transação em centavos.
+      Valor da transação em **centavos**.
+    </ResponseField>
+    <ResponseField name="netValue" type="number">
+      Valor líquido (após taxas) em **centavos**.
     </ResponseField>
   </Expandable>
 </ResponseField>
 
-### Exemplo de Notificação
+### Exemplo de Notificação de Pagamento
 
 ```json
 {
@@ -88,12 +57,24 @@ Quando um evento ocorre, a Zynx Wallet enviará um `POST` para sua URL com o seg
 }
 ```
 
-### Eventos Suportados
+## Eventos Suportados
 
-| Evento | Descrição |
+| Evento | Quando ocorre? |
 | :--- | :--- |
-| `payment.completed` | Um pagamento PIX foi confirmado. |
-| `payment.failed` | Um pagamento PIX expirou ou falhou. |
-| `withdrawal.created` | Um novo saque foi solicitado. |
-| `withdrawal.completed` | Um saque foi processado com sucesso. |
-| `withdrawal.failed` | Um saque foi rejeitado ou falhou. |
+| `payment.completed` | Quando o cliente finaliza o pagamento PIX com sucesso. |
+| `payment.failed` | Quando o pagamento não pôde ser processado ou expirou. |
+| `withdrawal.created` | Quando um novo saque é solicitado via API ou Painel. |
+| `withdrawal.completed` | Quando o saque foi enviado com sucesso para o destino. |
+| `withdrawal.failed` | Quando o saque foi rejeitado (ex: chave PIX inválida). |
+
+## Segurança (Recomendado)
+
+Para garantir que a notificação veio realmente da Zynx Wallet, você deve validar o cabeçalho `X-Zynx-Signature` enviado em cada POST.
+
+1. Obtenha seu `Webhook Secret` no painel.
+2. Gere um HMAC SHA256 do corpo bruto (raw body) da requisição usando seu Secret.
+3. Compare o resultado com o valor do cabeçalho `X-Zynx-Signature`.
+
+<Tip>
+  Sempre processe webhooks de forma assíncrona. Receba o dado, responda `200 OK` imediatamente e depois processe a lógica de negócio em background.
+</Tip>

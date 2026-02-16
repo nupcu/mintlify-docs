@@ -1,0 +1,52 @@
+---
+title: "Tratamento de Erros"
+icon: "triangle-exclamation"
+description: "Entenda os códigos de erro e como lidar com falhas na integração."
+---
+
+A API da Zynx Wallet utiliza códigos de status HTTP padrão para indicar o sucesso ou a falha de uma requisição.
+
+## Códigos de Status HTTP
+
+| Código | Significado | O que fazer? |
+| :--- | :--- | :--- |
+| **200/201** | Sucesso | A requisição foi processada corretamente. |
+| **400** | Bad Request | Verifique se os parâmetros enviados estão corretos. |
+| **401** | Unauthorized | Sua `X-API-Key` está ausente ou é inválida. |
+| **403** | Forbidden | Você não tem permissão para realizar esta ação. |
+| **404** | Not Found | O recurso solicitado (ex: ID de pagamento) não existe. |
+| **429** | Too Many Requests | Você atingiu o limite de requisições. Aguarde um momento. |
+| **500/502** | Server Error | Erro interno. Tente novamente em alguns segundos. |
+
+## Estrutura do Erro
+
+Quando ocorre um erro, a API retorna um objeto JSON detalhando o problema:
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "insufficient_balance",
+    "message": "Você não possui saldo suficiente para realizar este saque.",
+    "details": {
+      "available": 1000,
+      "required": 5000
+    }
+  }
+}
+```
+
+## Erros Comuns
+
+### Saldo Insuficiente (`insufficient_balance`)
+Ocorre em tentativas de saque ou transferência quando o valor solicitado é maior que o saldo disponível (excluindo valores pendentes).
+
+### Chave PIX Inválida (`invalid_pix_key`)
+A chave PIX fornecida não segue o formato esperado para o tipo selecionado (CPF, E-mail, etc).
+
+### Valor Abaixo do Mínimo (`amount_below_minimum`)
+Tentativa de criar um pagamento ou saque com valor inferior a R$ 1,00.
+
+<Tip>
+  **Dica de Ouro:** Sempre registre os logs de erro da API em seu sistema. Isso ajuda nossa equipe de suporte a identificar problemas rapidamente caso você precise de ajuda.
+</Tip>
