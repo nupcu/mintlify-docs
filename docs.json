@@ -14,51 +14,53 @@
       "name": "X-API-Key"
     }
   },
-  "navigation": [
-    {
-      "group": "Documentação",
-      "pages": [
-        "index",
-        "quickstart",
-        "about"
-      ]
-    },
-    {
-      "group": "Começando",
-      "pages": [
-        "api-reference/autenticacao",
-        "api-reference/rate-limiting"
-      ]
-    },
-    {
-      "group": "Pagamentos",
-      "pages": [
-        "api-reference/pagamentos/criar",
-        "api-reference/pagamentos/buscar",
-        "api-reference/pagamentos/listar"
-      ]
-    },
-    {
-      "group": "Saques",
-      "pages": [
-        "api-reference/saques/criar",
-        "api-reference/saques/criar-crypto",
-        "api-reference/saques/buscar",
-        "api-reference/saques/listar"
-      ]
-    },
-    {
-      "group": "Conta",
-      "pages": [
-        "api-reference/conta/saldo",
-        "api-reference/conta/transferencia"
-      ]
-    },
-    {
-      "group": "Webhooks",
-      "pages": [
-        "api-reference/webhooks"
-      ]
-    }
-  ]
+  "navigation": {
+    "groups": [
+      {
+        "group": "Documentação",
+        "pages": [
+          "index",
+          "quickstart",
+          "about"
+        ]
+      },
+      {
+        "group": "Começando",
+        "pages": [
+          "api-reference/autenticacao",
+          "api-reference/rate-limiting"
+        ]
+      },
+      {
+        "group": "Pagamentos",
+        "pages": [
+          "api-reference/pagamentos/criar",
+          "api-reference/pagamentos/buscar",
+          "api-reference/pagamentos/listar"
+        ]
+      },
+      {
+        "group": "Saques",
+        "pages": [
+          "api-reference/saques/criar",
+          "api-reference/saques/criar-crypto",
+          "api-reference/saques/buscar",
+          "api-reference/saques/listar"
+        ]
+      },
+      {
+        "group": "Conta",
+        "pages": [
+          "api-reference/conta/saldo",
+          "api-reference/conta/transferencia"
+        ]
+      },
+      {
+        "group": "Webhooks",
+        "pages": [
+          "api-reference/webhooks"
+        ]
+      }
+    ]
+  }
 }
