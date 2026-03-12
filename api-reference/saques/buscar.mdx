@@ -1,33 +1,194 @@
 ---
-title: "Buscar Saque"
-api: "GET /api/withdrawals/{id}"
-description: "Consulta os detalhes de um saque específico."
+title: "Consultar Saque"
+api: "GET /api/v1/withdraw/{id}"
+description: "Busca informações de um saque específico pertencente ao usuário autenticado."
 ---
 
-### Path Parameters
+Este endpoint retorna os dados completos de um **saque específico**.
+
+A API verifica automaticamente se o saque pertence ao usuário autenticado.  
+Caso o saque pertença a outro usuário, o acesso será negado.
+
+---
+
+# Autenticação
+
+Este endpoint exige autenticação.
+
+Envie sua API Key no header:
+
+```bash
+X-API-Key: zynx_sua_chave_aqui
+```
+
+---
+
+# Rate Limit
+
+| Tipo | Limite |
+|-----|------|
+API Key | 100 requisições por minuto |
+
+---
+
+# Parâmetros da URL
 
 <ParamField path="id" type="string" required>
-  O ID do saque (ex: `wth_xyz789`)
+ID único do saque que deseja consultar.
 </ParamField>
 
+---
+
+# Exemplo de requisição
+
 <RequestExample>
-```bash cURL
-curl -X GET "https://api.zynxwallet.com.br/api/withdrawals/wth_xyz789" \
-  -H "X-API-Key: zynx_sua_api_key"
+
+```bash
+curl -X GET "https://api.zynxwallet.com.br/api/v1/withdraw/wd_abc123" \
+-H "X-API-Key: zynx_sua_chave_aqui"
 ```
+
 </RequestExample>
 
+---
+
+# Estrutura da resposta
+
+<ResponseField name="success" type="boolean">
+Indica se a requisição foi processada com sucesso.
+</ResponseField>
+
+<ResponseField name="data.id" type="string">
+ID único do saque.
+</ResponseField>
+
+<ResponseField name="data.correlationID" type="string">
+ID de correlação utilizado internamente para rastreamento.
+</ResponseField>
+
+<ResponseField name="data.value" type="number">
+Valor solicitado para saque.
+</ResponseField>
+
+<ResponseField name="data.status" type="string">
+Status atual do saque.
+</ResponseField>
+
+<ResponseField name="data.pixKey" type="string">
+Chave PIX utilizada no saque (quando aplicável).
+</ResponseField>
+
+<ResponseField name="data.pixKeyType" type="string">
+Tipo da chave PIX utilizada.
+</ResponseField>
+
+<ResponseField name="data.transactionId" type="string">
+ID da transação retornado pela gateway de pagamento.
+</ResponseField>
+
+<ResponseField name="data.fee" type="number">
+Taxa aplicada ao saque.
+</ResponseField>
+
+<ResponseField name="data.sent" type="number">
+Valor efetivamente enviado após desconto da taxa.
+</ResponseField>
+
+<ResponseField name="data.completedAt" type="string">
+Data em que o saque foi concluído.
+</ResponseField>
+
+<ResponseField name="data.failedAt" type="string">
+Data em que o saque falhou.
+</ResponseField>
+
+<ResponseField name="data.failureReason" type="string">
+Motivo da falha caso o saque tenha sido rejeitado.
+</ResponseField>
+
+<ResponseField name="data.createdAt" type="string">
+Data de criação do saque.
+</ResponseField>
+
+<ResponseField name="data.updatedAt" type="string">
+Última atualização do saque.
+</ResponseField>
+
+---
+
+# Exemplo de resposta
+
 <ResponseExample>
-```json Resposta
+
+```json
 {
   "success": true,
   "data": {
-    "id": "wth_xyz789",
-    "amount": 50.00,
-    "status": "COMPLETED",
-    "pixKey": "00011122233",
-    "createdAt": "2024-01-15T15:00:00.000Z"
+    "id": "wd_abc123",
+    "correlationID": "corr_92183",
+    "value": 100,
+    "status": "PROCESSING",
+    "pixKey": "email@exemplo.com",
+    "pixKeyType": "EMAIL",
+    "transactionId": "tx_891273",
+    "fee": 2,
+    "sent": 98,
+    "completedAt": null,
+    "failedAt": null,
+    "failureReason": null,
+    "createdAt": "2026-03-12T19:00:00Z",
+    "updatedAt": "2026-03-12T19:00:05Z"
   }
 }
 ```
+
 </ResponseExample>
+
+---
+
+# Status possíveis
+
+| Status | Descrição |
+|------|-----------|
+PENDING | saque criado |
+PROCESSING | sendo processado |
+COMPLETED | saque concluído |
+FAILED | saque falhou |
+
+---
+
+# Erros possíveis
+
+## Saque não encontrado
+
+```json
+{
+  "error": "Saque não encontrado"
+}
+```
+
+---
+
+## Acesso negado
+
+```json
+{
+  "error": "Acesso negado",
+  "message": "Você não tem permissão para acessar este saque"
+}
+```
+
+---
+
+## Erro interno
+
+```json
+{
+  "error": "Erro interno do servidor",
+  "message": "Erro inesperado ao buscar saque"
+}
+```
+
+---
+
+Este endpoint é utilizado para **consultar o status e os detalhes completos de um saque específico**.
