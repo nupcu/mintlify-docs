@@ -1,45 +1,133 @@
 ---
-title: "Saque em Criptomoedas (USDT BEP20)"
-api: "POST /withdraw/crypto"
-description: "Converta seu saldo em reais para USDT e envie para qualquer carteira na rede Binance Smart Chain (BSC)."
+title: "Criar Saque Cripto"
+api: "POST /api/v1/withdraw"
+description: "Solicita um saque do saldo da conta para uma carteira cripto."
 ---
 
-### Parâmetros do Corpo (JSON)
+Este endpoint permite retirar saldo da conta para uma **carteira cripto BEP20**.
+
+---
+
+# Autenticação
+
+Envie sua API Key no header.
+
+```bash
+X-API-Key: zynx_sua_chave_aqui
+```
+
+---
+
+# Limites de saque
+
+| Regra | Valor |
+|------|------|
+Valor mínimo | R$20 |
+Valor máximo | R$3000 |
+
+---
+
+# Parâmetros
 
 <ParamField body="amount" type="number" required>
-  Valor em reais a ser convertido.
+Valor do saque em reais.
+</ParamField>
+
+<ParamField body="type" type="string" required>
+Deve ser definido como:
+
+```
+crypto
+```
 </ParamField>
 
 <ParamField body="wallet" type="string" required>
-  Endereço da carteira BEP20 (0x...).
+Endereço da carteira BEP20.
+
+Formato:
+
+```
+0x + 40 caracteres hexadecimais
+```
+
+Exemplo:
+
+```
+0x742d35Cc6634C0532925a3b844Bc454e4438f44e
+```
 </ParamField>
 
 <ParamField body="description" type="string">
-  Descrição opcional para o saque.
+Descrição opcional do saque.
 </ParamField>
 
+<ParamField body="verificationCode" type="string">
+Código de verificação enviado por e-mail se a segurança de transferências estiver ativa.
+</ParamField>
+
+---
+
+# Exemplo de requisição
+
 <RequestExample>
-```bash cURL
-curl -X POST 'https://api.zynxwallet.com.br/api/v1/withdraw/crypto' \
-  -H 'X-API-Key: zynx_sua_chave_aqui' \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "amount": 1000.00,
-    "wallet": "0x71C7656EC7ab88b098defB751B7401B5f6d8976F",
-    "description": "Saque para Wallet Externa"
-  }'
+
+```bash
+curl -X POST "https://api.zynxwallet.com.br/api/v1/withdraw" \
+-H "Content-Type: application/json" \
+-H "X-API-Key: zynx_sua_chave_aqui" \
+-d '{
+"amount": 100,
+"type": "crypto",
+"wallet": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+}'
 ```
+
 </RequestExample>
 
+---
+
+# Exemplo de resposta
+
 <ResponseExample>
-```json Resposta
+
+```json
 {
-  "success": true,
-  "data": {
-    "id": "wth_crypto_123",
-    "status": "PROCESSING",
-    "txId": null
-  }
+"success": true,
+"message": "Saque solicitado com sucesso e está sendo processado.",
+"withdrawId": "wd_crypto_123",
+"status": "PROCESSING"
 }
 ```
+
 </ResponseExample>
+
+---
+
+# Validação da carteira
+
+A carteira precisa seguir o formato:
+
+```
+^0x[a-fA-F0-9]{40}$
+```
+
+Se o formato for inválido:
+
+```json
+{
+"error": "Carteira inválida",
+"message": "Formato de carteira BEP20 inválido."
+}
+```
+
+---
+
+# Status possíveis
+
+| Status | Descrição |
+|------|-----------|
+PENDING | saque criado |
+PROCESSING | sendo processado |
+FAILED | falha no saque |
+
+---
