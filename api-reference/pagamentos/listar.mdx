@@ -1,43 +1,317 @@
 ---
 title: "Listar Pagamentos"
-api: "GET /payment/list"
-description: "Retorna uma lista paginada de todos os seus pagamentos."
+api: "GET /api/v1/payment/list"
+description: "Retorna a lista de todos os pagamentos do usuário autenticado."
 ---
 
-### Query Parameters
+Este endpoint retorna todos os pagamentos associados à conta autenticada.
+
+Ele permite:
+
+- listar transações
+- filtrar por status
+- paginar resultados
+- visualizar estatísticas gerais de pagamentos
+
+Os resultados são retornados **do mais recente para o mais antigo**.
+
+---
+
+# Autenticação
+
+Este endpoint exige autenticação obrigatória.
+
+Envie sua chave de API no header da requisição:
+
+```bash
+X-API-Key: zynx_sua_chave_aqui
+```
+
+Se nenhuma chave válida for enviada:
+
+```json
+{
+  "error": "Unauthorized"
+}
+```
+
+---
+
+# Rate Limit
+
+Para evitar abuso da API existe limite de requisições.
+
+| Tipo | Limite |
+|-----|------|
+API Key | 100 requisições por minuto |
+
+Se o limite for excedido:
+
+```json
+{
+  "error": "Too many requests"
+}
+```
+
+---
+
+# Parâmetros de Query
 
 <ParamField query="status" type="string">
-  Filtrar por status (`PENDING`, `COMPLETED`, `FAILED`).
+Filtra pagamentos por status.
+
+Valores aceitos:
+
+```
+PENDING
+ACTIVE
+COMPLETED
+PAID
+```
+
+Exemplo:
+
+```
+?status=COMPLETED
+```
 </ParamField>
 
 <ParamField query="limit" type="number" default="50">
-  Quantidade por página (máx 1000).
+Define quantos pagamentos serão retornados por requisição.
+
+Exemplo:
+
+```
+?limit=10
+```
 </ParamField>
 
 <ParamField query="offset" type="number" default="0">
-  Pular registros.
+Define o ponto inicial da paginação.
+
+Exemplo:
+
+```
+?offset=20
+```
+
+Isso permite carregar páginas de resultados.
 </ParamField>
 
-<RequestExample>
-```bash cURL
-curl -X GET 'https://api.zynxwallet.com.br/api/v1/payment/list?status=COMPLETED&limit=10' \
-  -H 'X-API-Key: zynx_sua_chave_aqui'
+---
+
+# Ordenação
+
+Os pagamentos são ordenados automaticamente por:
+
 ```
+createdAt DESC
+```
+
+Ou seja, **os pagamentos mais recentes aparecem primeiro**.
+
+---
+
+# Estrutura da Resposta
+
+<ResponseField name="success" type="boolean">
+Indica se a requisição foi processada com sucesso.
+</ResponseField>
+
+<ResponseField name="data" type="object">
+
+<Expandable title="Campos retornados">
+
+<ResponseField name="payments" type="array">
+Lista de pagamentos do usuário.
+</ResponseField>
+
+<ResponseField name="pagination" type="object">
+Informações de paginação.
+</ResponseField>
+
+<ResponseField name="statistics" type="object">
+Resumo estatístico das transações.
+</ResponseField>
+
+</Expandable>
+
+</ResponseField>
+
+---
+
+# Estrutura de Pagamento
+
+Cada objeto dentro de `payments` possui os seguintes campos.
+
+<ResponseField name="id" type="string">
+ID único do pagamento.
+</ResponseField>
+
+<ResponseField name="correlationID" type="string">
+Identificador da transação utilizado internamente.
+</ResponseField>
+
+<ResponseField name="value" type="number">
+Valor total da transação em centavos.
+</ResponseField>
+
+<ResponseField name="netValue" type="number">
+Valor líquido da transação.
+</ResponseField>
+
+<ResponseField name="fee" type="number">
+Taxa aplicada na transação.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+Status atual do pagamento.
+</ResponseField>
+
+<ResponseField name="description" type="string">
+Descrição do pagamento.
+</ResponseField>
+
+<ResponseField name="createdAt" type="string">
+Data de criação da transação.
+</ResponseField>
+
+<ResponseField name="updatedAt" type="string">
+Data da última atualização da transação.
+</ResponseField>
+
+---
+
+# Estrutura de Paginação
+
+<ResponseField name="total" type="number">
+Quantidade total de pagamentos encontrados.
+</ResponseField>
+
+<ResponseField name="limit" type="number">
+Quantidade máxima retornada por requisição.
+</ResponseField>
+
+<ResponseField name="offset" type="number">
+Posição inicial da consulta.
+</ResponseField>
+
+<ResponseField name="hasMore" type="boolean">
+Indica se existem mais resultados disponíveis.
+</ResponseField>
+
+---
+
+# Estatísticas
+
+A resposta também inclui estatísticas agregadas.
+
+<ResponseField name="total" type="number">
+Quantidade total de pagamentos.
+</ResponseField>
+
+<ResponseField name="completed" type="number">
+Quantidade de pagamentos concluídos.
+</ResponseField>
+
+<ResponseField name="pending" type="number">
+Quantidade de pagamentos pendentes.
+</ResponseField>
+
+<ResponseField name="totalValue" type="number">
+Soma de todos os valores de pagamentos.
+</ResponseField>
+
+<ResponseField name="totalNetValue" type="number">
+Soma de todos os valores líquidos recebidos.
+</ResponseField>
+
+---
+
+# Exemplo de Requisição
+
+<RequestExample>
+
+```bash
+curl -X GET "https://api.zynxwallet.com.br/api/v1/payment/list" \
+  -H "X-API-Key: zynx_sua_chave_aqui"
+```
+
 </RequestExample>
 
+---
+
+# Exemplo com Filtro
+
+```bash
+curl -X GET "https://api.zynxwallet.com.br/api/v1/payment/list?status=COMPLETED&limit=10&offset=0" \
+  -H "X-API-Key: zynx_sua_chave_aqui"
+```
+
+---
+
+# Exemplo de Resposta
+
 <ResponseExample>
-```json Resposta
+
+```json
 {
   "success": true,
-  "data": [
-    {
-      "id": "pay_abc123",
-      "status": "COMPLETED",
-      "value": 15300,
-      "netValue": 15000,
-      "updatedAt": "2024-02-16T15:05:00Z"
+  "data": {
+    "payments": [
+      {
+        "id": "pay_abc123",
+        "correlationID": "txn_94a83bd",
+        "value": 15000,
+        "netValue": 14700,
+        "fee": 300,
+        "status": "COMPLETED",
+        "description": "Compra produto premium",
+        "createdAt": "2024-02-16T15:00:00Z",
+        "updatedAt": "2024-02-16T15:01:10Z"
+      }
+    ],
+    "pagination": {
+      "total": 1,
+      "limit": 50,
+      "offset": 0,
+      "hasMore": false
+    },
+    "statistics": {
+      "total": 1,
+      "completed": 1,
+      "pending": 0,
+      "totalValue": 15000,
+      "totalNetValue": 14700
     }
-  ]
+  }
 }
 ```
+
 </ResponseExample>
+
+---
+
+# Erros Possíveis
+
+## Erro interno
+
+```json
+{
+  "error": "Erro interno do servidor",
+  "message": "Falha ao listar pagamentos"
+}
+```
+
+---
+
+# Boas práticas
+
+- utilize paginação para evitar respostas muito grandes  
+- filtre por status quando necessário  
+- utilize o campo `hasMore` para implementar scroll infinito ou carregamento progressivo  
+- armazene os IDs das transações para consultas individuais futuras
+
+---
+
+Este endpoint permite consultar **histórico completo de pagamentos** de forma segura e organizada dentro da plataforma.
